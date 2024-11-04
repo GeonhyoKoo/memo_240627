@@ -1,0 +1,9 @@
+@charset "UTF-8";
+
+header, footer {
+	height : 100px;
+}
+
+.content {
+	min-height : 500px;
+}
