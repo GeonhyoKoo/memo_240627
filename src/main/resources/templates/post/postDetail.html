@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html 
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/defaultLayout}">
+<section layout:fragment="content" class="contents d-flex justify-content-center">
+	<div class="w-50 py-4">
+		<h1>글 상세</h1>
+		<input type="text" id="subject" class="form-control" placeholder="제목을 입력하세요" th:value="${post.subject}">
+		<textarea id="content" rows="10" class="form-control" placeholder="내용을 입력하세요" th:text="${post.content}"></textarea>
+		
+		<!-- 이미지 영역: 이미지가 있을 때에만 -->
+		<div class="my-3" th:if="${post.imagePath != null}">
+			<img th:src="${post.imagePath}" alt="본문 이미지" width="300">
+		</div>
+		
+		<div class="d-flex justify-content-end my-3">
+			<input type="file" id="file" accept=".jpg, .png, .gif">
+		</div>
+		
+		<div class="d-flex justify-content-between">
+			<button type="button" id="delBtn" class="btn btn-secondary" th:data-post-id="${post.id}">삭제</button>
+			<div>
+				<a class="btn btn-dark" href="/post/post-list-view">목록</a>
+				<button type="button" id="saveBtn" class="btn btn-warning" th:data-post-id="${post.id}">수정</button>
+			</div>
+		</div>
+	</div>
+</section>
+
+<th:block layout:fragment="script">
+    <script>
+
+    	$(document).ready(function(){
+    		
+    		$("#saveBtn").on("click", function(){
+    			
+    			let postId = $(this).data("post-id");
+    			//alert(postId);
+    			
+    			//alert("수정");
+    			let subject = $("#subject").val().trim();
+    			let content = $("#content").val();
+    			let fileName = $("#file").val(); // C:\fakepath\1_desc 결과.png
+    			
+    			
+    			
+    			if (!subject){
+    				alert("제목을 입력하세요.")
+    				return;
+    			}
+    			if (!content){
+    				alert("내용을 입력하세요.")
+    				return;
+    			}
+    			
+    			// 파일명이 있으면 확장자 체크
+    			if(fileName){
+    				//alert("파일 있음");
+    				// C:\fakepath\1_desc 결과.png
+    				let extension = fileName.split(".").pop().toLowerCase();
+    				//console.log(extension);
+    				
+    				if($.inArray(extension , ["jpg", "png", "gif"]) == -1){
+    					alert("이미지 파일만 업로드 할 수 있습니다.");
+    					$("#file").val(""); // 파일을 비운다.
+    					return;
+    				}
+    				
+    				alert("성공");
+    			}
+    			console.log(subject);
+    			console.log(content);
+    			
+    			
+    			// 이미지 때문에 form 태그 js 에서 만듦
+    			let formData = new FormData(); // 비워진 폼태그 만들기
+    			formData.append("postId" , postId);
+    			formData.append("subject" , subject);
+    			formData.append("content" , content);
+    			formData.append("file" , $("#file")[0].files[0]);
+    			
+    			$.ajax({
+    				//request
+    				type : "put"
+    				, url : "/post/update"
+    				, data : formData
+    				, processData : false // 파일 업로드 필수설정 
+    				, contentType : false // 파일 업로드 필수설정 
+    				, enctype : "multipart/form-data" // 파일 업로드 필수설정 
+    				//response
+    				, success : function(data){
+    					if(data.code == 200){
+    						alert("글이 수정되었습니다");
+    						location.reload(true);
+    					} else {
+    						alert(data.error_message);
+    					}
+    				}
+    				, error : function(e){
+    					alert("메모를 수정하는데 실패했습니다.");
+    				}
+    			});
+    			
+    			
+    		});
+    		
+    		
+    		
+    		// 글 삭제
+    		$("#delBtn").on("click" , function(){
+    			
+    			let postId = $(this).data("post-id");
+    			//console.log(postId);
+    			
+    			
+    			$.ajax({
+    				type : "delete"
+    				, url : "/post/delete"
+    				, data : {"postId" : postId}
+    				, success : function(data){
+    					if (data.code == 200){
+    						location.href = "/post/post-list-view";
+    					} else {
+    						alert(data.error_message);
+    					}
+    				}
+    				, error : function(e){
+    					alert("메모 삭제에 실패했습니다. 관리자에게 문의해주세요.");
+    				}
+    			});
+    			
+    			
+    		});
+    		
+    		
+    	});
+    
+    </script>
+</th:block>

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html 
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/defaultLayout}">
+<section layout:fragment="content" class="contents d-flex justify-content-center">
+	<div class="w-50">
+		<h1>글쓰기</h1>
+		
+		<input type="text" id="subject" class="form-control" placeholder="제목을 입력하세요">
+		<textarea id="content" rows="10" class="form-control" placeholder="내용을 입력하세요"></textarea>
+		
+		<div class="d-flex justify-content-end my-3">
+			<input type="file" id="file" accept=".jpg, .png, .gif">
+		</div>
+		
+		<div class="d-flex justify-content-between">
+			<button type="button" class="btn btn-dark" id="postListBtn">목록</button>
+			<div>
+				<button type="button" class="btn btn-secondary" id="clearBtn">모두 지우기</button>
+				<button type="button" class="btn btn-warning" id="saveBtn">저장</button>
+			</div>
+		</div>
+	</div>
+
+
+</section>
+
+<th:block layout:fragment="script">
+    <script>
+    	$(document).ready(function(){
+    		
+    		// 목록 버튼 클릭 -> 목록 화면으로 이동
+    		$("#postListBtn").on("click" , function(){
+    			location.href = "/post/post-list-view";
+    		});
+    		
+    		
+    		// 모두 지우기
+    		$("#clearBtn").on("click" , function(){
+    			//alert("모두 지우기");
+    			
+    			// 지금 현재 input 값을 다 빈 스트링으로 채운다.
+    			$("#subject").val("");
+    			$("#content").val(""); // textarea만 값을 value로 가져온다.
+    			
+    		});
+    		
+    		
+    		// 저장 
+    		$("#saveBtn").on("click", function(){
+    			//alert("저장 버튼");
+    			
+    			// validation check
+    			let subject = $("#subject").val().trim();
+    			let content = $("#content").val();
+    			let fileName = $("#file").val(); // C:\fakepath\1_desc 결과.png
+    			
+    			
+    			
+    			if (!subject){
+    				alert("제목을 입력하세요.")
+    				return;
+    			}
+    			if (!content){
+    				alert("내용을 입력하세요.")
+    				return;
+    			}
+    			
+    			// 파일명이 있으면 확장자 체크
+    			if(fileName){
+    				//alert("파일 있음");
+    				// C:\fakepath\1_desc 결과.png
+    				let extension = fileName.split(".").pop().toLowerCase();
+    				//console.log(extension);
+    				
+    				if($.inArray(extension , ["jpg", "png", "gif"]) == -1){
+    					alert("이미지 파일만 업로드 할 수 있습니다.");
+    					$("#file").val(""); // 파일을 비운다.
+    					return;
+    				}
+    				
+    			}
+    			console.log(subject);
+    			console.log(content);
+    			
+    			// 이미지 업로드 시 form 태그가 필요함.
+    			// form 태그를 js에서 만든다. 그리고 그걸로 ajax 요청을 한다.
+    			let formData = new FormData(); // 폼태그를 열고 닫았다
+    			formData.append("subject" , subject); // key가 form의 name과 같다 - request parameter명
+    			formData.append("content" , content);
+    			formData.append("file", $("#file")[0].files[0]);
+    			
+    			$.ajax({
+    				//request
+    				type : "POST"
+    				, url : "/post/create"
+    				, data : formData
+    				, processData : false // 파일 업로드 필수 설정
+    				, contentType : false // 파일 업로드 필수 설정
+    				, enctype : "multipart/form-data" // 이미지를 보내는 방식할때 인코딩, 이미지 보낼때 꼭 필요함 , 파일 업로드 필수 설정
+    				//response
+    				, success : function(data){
+    					// 성공일 때 alert 후 목록 화면으로 이동
+    					if (data.code == 200){
+    						alert("메모가 저장되었습니다.");
+    						location.href = "/post/post-list-view";
+    					} else {
+    						alert(data.error_message);
+    					}
+    				}
+    				, error : function(e){
+    					alert("글 저장에 실패했습니다.");
+    				}
+    			});
+    			
+    		});
+    		
+    		
+    	});
+    </script>
+</th:block>

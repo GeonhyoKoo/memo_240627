@@ -4,6 +4,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import jakarta.servlet.http.HttpSession;
+
 @RequestMapping("/user")
 @Controller
 public class UserController {
@@ -31,5 +33,20 @@ public class UserController {
 		// 왜냐면 조각이 전체에 껴넣기를 했기 때문에
 		return "user/signIn";
 	}
+	
+	
+	@GetMapping("/sign-out")
+	public String signOut(HttpSession session) {
+		// session을 비운다.
+		session.removeAttribute("userId");
+		session.removeAttribute("userLoginId");
+		session.removeAttribute("userName");
+		
+		// redirect 로 로그인 페이지 이동
+		return "redirect:/user/sign-in-view";
+		
+	}
+	
+	
 	
 }

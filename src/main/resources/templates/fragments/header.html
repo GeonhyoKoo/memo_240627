@@ -9,10 +9,17 @@
 					<h1>Memo 게시판</h1>
 				</div>
 				<!-- login  -->
-				<div>
-					<span>님 안녕하세요.</span>
-					<a href="#">로그인</a>
+				<!-- 로그인이 되어 있을 때 -->
+				<div th:if="${session.userName != null}">
+					<span th:text="${session.userName} +'님 안녕하세요.'"></span>
+					<a href="/user/sign-out">로그아웃</a>
 				</div>
+				
+				<!-- 비로그인 일 때 -->
+				<div th:unless="${session.userName != null}">
+					<a href="/user/sign-in-view">로그인</a>
+				</div>
+				
 			</div>	
 		</header>
 	</th:block>
