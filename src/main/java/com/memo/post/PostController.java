@@ -21,6 +21,8 @@ public class PostController {
 	@Autowired
 	private PostBO postBO;
 	
+	// 테스트 이슈 주석 추가
+	
 	
 	@GetMapping("/post-list-view")
 	public String postListView(
@@ -79,6 +81,7 @@ public class PostController {
 	public String postCreateView() {
 		return "post/postCreate";
 	}
+	
 	
 	
 	@GetMapping("/post-detail-view")
