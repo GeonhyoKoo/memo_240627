@@ -103,5 +103,9 @@ public class PostController {
 	
 	
 	
+	@GetMapping("/test")
+	public String postTest() {
+		return "post/testCreate";
+	}
 	
 }

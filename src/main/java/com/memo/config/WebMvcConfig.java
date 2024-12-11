@@ -6,6 +6,7 @@ import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import com.memo.common.FileManegerSerive;
+import com.memo.common.ImageUpload;
 import com.memo.interceptor.PermissionInterceptor;
 
 import lombok.RequiredArgsConstructor;
@@ -33,8 +34,13 @@ public class WebMvcConfig implements WebMvcConfigurer{
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
 		registry
-		.addResourceHandler("/images/**") // path  http://localhost/images/aaaa_42342432432/
+		.addResourceHandler("/temp/**") // path  http://localhost/images/aaaa_42342432432/
+		.addResourceLocations("file://" + ImageUpload.FILE_TEMP_UPLOAD_PATH);
+		
+		registry
+		.addResourceHandler("/image/**") // path  http://localhost/images/aaaa_42342432432/
 		.addResourceLocations("file://" + FileManegerSerive.FILE_UPLOAD_PATH);
+		
 	}
 	
 }

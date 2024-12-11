@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.memo.post.bo.PostBO;
+import com.memo.post.domain.Post;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -119,5 +120,26 @@ public class PostRestController {
 	}
 	
 	
+	
+	@PostMapping("/test")
+	public Map<String,  Object> addImg(
+			HttpSession session,
+			Post post,
+			@RequestParam(value = "imageArr[]", required = false) String[] imgName
+			) {
+		
+		
+		String content = post.getContent();
+		String subject = post.getSubject();
+
+		
+		
+		
+		
+		Map<String , Object> result = new HashMap<>();
+		result.put("code", 200);
+		return result;
+		
+	}
 	
 }

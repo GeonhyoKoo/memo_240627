@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html 
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/defaultLayout}">
+<section layout:fragment="content" class="contents d-flex justify-content-center">
+
+	
+	<form method="post"  action="/post/test" id="boardForm" enctype="multipart/form-data">
+		<div class="d-flex mt-3">
+			<span class="mr-3">제목</span>
+			<input type="text" id="subject" name="subject" placeholder="제목을 입력하세요" class="from-control">
+		</div>
+		<textarea id="summernote" name="content"></textarea>
+		<input type="submit" value="전송" id="createBtn" class="btn btn-primary">
+	</form> 
+	
+	<!-- div>
+	<div class="d-flex mt-3">
+		<span class="mr-3">제목</span>
+		<input type="text" id="subject" name="subject" placeholder="제목을 입력하세요" class="from-control">
+	</div>
+	<div>
+		<textarea id="summernote" name="content"></textarea>
+	</div>
+	<div>
+	<input type="button" value="전송" id="createBtn" class="btn btn-primary">
+	</div>
+	</div> -->
+
+</section>
+
+<th:block layout:fragment="script">
+    <script>
+    
+    var imageArr = new Array();
+    
+    $(document).ready(function (){
+    	// 섬머 노트
+    	$("#summernote").summernote({
+            codeviewFilter: false,                              // 코드 보기 필터 비활성화
+            codeviewIframeFilter: false,                        // 코드 보기 iframe 필터 비활성화
+
+            height: 400,                                        // 에디터 높이
+            minHeight: null,                                    // 최소 높이
+            maxHeight: null,                                    // 최대 높이
+            lang: "ko-KR",                                      // 에디터 한글 설정
+            focus : true,                                       // 에디터 포커스 설정
+            toolbar: [
+                ['fontname', ['fontname']],                     // 글꼴 설정
+                ['fontsize', ['fontsize']],                     // 글자 크기
+                ['style', ['bold', 'italic', 'underline','strikethrough', 'clear']],  // 글자 스타일 설정
+                ['color', ['forecolor','color']],               // 글자색
+                ['table', ['table']],                           // 표 생성
+                ['insert', ['picture', 'link','video']],        // 이미지, 링크 , 동영상
+                ['para', ['ul', 'ol', 'paragraph']],            // 문단 스타일 설정
+                ['height', ['height']],                         // 줄간격
+                ['view', ['codeview','fullscreen', 'help']]     // 코드보기, 전체화면, 도움말
+            ],
+            fontNames: ['Arial', 'Arial Black', 'Comic Sans MS', 'Courier New','맑은 고딕','궁서','굴림체','굴림','돋음체','바탕체'], // 추가한 글꼴
+            fontSizes: ['8','9','10','11','12','14','16','18','20','22','24','28','30','36','50','72'], // 추가한 폰트사이즈
+            callbacks : {
+                // 파일 업로드
+                onImageUpload : function (files) {
+                    for(let i=0; i < files.length; i++){
+                        // 이미지가 여러개일 경우
+                        imageUpload(files[i] , this);
+                    }
+                },
+                // 파일 삭제
+                onMediaDelete: function ($target){
+                    if(confirm("이미지를 삭제하시겠습니까?")){
+                        let fileName = $target.attr('src').split('/').pop();
+                        deleteFile(fileName);
+                    }
+                }
+            }
+        });
+    	
+    	// 이미지 업로드
+    	function imageUpload(file , el){
+    	    let formData = new FormData();
+    	    formData.append("file", file);
+
+    	    $.ajax({
+    	       url : "/upload/addImg",
+    	       type : "POST",
+    	       data : formData,
+    	       contentType: false,
+    	       processData: false,
+    	       encType : "multipart/form-data",
+    	       success : function (data) {
+    	           if(data.code == 200){
+    	        	   $(el).summernote('editor.insertImage', data.url, function ($image){});
+    	        	   imageArr.push(data.url);
+    	        	   console.log(imageArr); //
+    	           } else {
+    	        	   alert("error");
+    	           }
+    	       },
+    	        error(e){
+    	           console.log("error : "+ e);
+    	        }
+    	    });
+    	}
+
+    	// 이미지 삭제
+    	function deleteFile(fileName) {
+    	    let formData = new FormData();
+    	    formData.append("file", fileName);
+
+    	    $.ajax({
+    	        url : "/upload/imageDelete",
+    	        type : "POST",
+    	        data : formData,
+    	        // contentType, processData 설정 안하면 TypeError: Illegal invocation 오류가 발생한다
+    	        contentType: false,
+    	        processData: false,
+    	        encType : "multipart/form-data"
+    	    });
+    	}
+    	
+    	
+    	
+    	$("#createBtn").on("click" , function(e){
+    		
+    		e.preventDefault();
+    		console.log("폼 제출 방지됨");
+    		
+    		let formData = new FormData(document.querySelector("#boardForm"));
+    		
+    		if (imageArr.length > 0){
+    			for (let i = 0; i < imageArr.length; i++){
+    				formData.append("imageArr[]" ,imageArr[i]);
+    			}
+    		}
+    		
+
+    		// formData의 로그를 찍기 위해새ㅓ 
+    		 /* for (let pair of formData.entries()) {
+    		        console.log(pair[0] + ': ' + pair[1]);  // formData의 key-value 쌍 출력
+    		    } */
+    		
+    		
+    		$.ajax({
+                url: '/post/test',  // 요청을 보낼 URL (서버에서 처리할 URL)
+                type: 'POST',  // HTTP 메서드 (POST, GET 등)
+                data: formData,  // 서버로 보낼 데이터 (이미지 포함)
+                contentType: false,  // 콘텐츠 타입을 자동으로 설정하지 않도록
+                processData: false,  // jQuery가 데이터를 처리하지 않도록 설정
+                enctype: 'multipart/form-data',  // 멀티파트 데이터 전송을 명시
+                success: function(data) {
+                   if(data == 200){
+                	   alert("1");
+                   }
+                },
+                error: function(e) {
+                	alert("2");
+                }
+            });
+    		
+    		
+    		
+    	});
+    	
+    	
+    });
+    
+    
+    
+    
+    </script>
+</th:block>
+
+
