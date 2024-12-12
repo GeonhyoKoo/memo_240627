@@ -18,6 +18,10 @@ public class FileManegerSerive {
 	// 실제 업로드 된 이미지가 저장될 서버 경로  마지막에 꼭 /를 넣어야한다.
 	public static final String FILE_UPLOAD_PATH = "/Users/geonhyo/koo/5_spring_project/workspace/images/";
 	
+	public static final String FILE_SUMMERNOTE_UPLOAD_PATH = "/Users/geonhyo/koo/5_spring_project/workspace/testboard/";
+	public static final String FILE_PREV_UPLOAD_PATH = "/Users/geonhyo/koo/5_spring_project/workspace/temp/";
+	
+	
 	// input: MultipartFile , userLoginId
 	// output:  String(이미지경로)
 	public String uploadFile(MultipartFile file , String loginId) {
@@ -88,10 +92,57 @@ public class FileManegerSerive {
 				}
 			}
 		}
-		
-		
-		
 	}
+	
+	
+	
+	////summernote upload
+	public String uploadSummerNoteFile(String tempPath , String loginId) {
+		
+		// 새로 만들 폴더
+		String directoryName =  loginId + "_" + System.currentTimeMillis();
+		// 새로 저장할 디렉토리 및 경로
+		String targetDir = FILE_SUMMERNOTE_UPLOAD_PATH + directoryName + "/";
+		
+		File directory = new File(targetDir);
+		if( directory.mkdir() == false) { // mkdir -> make directory
+			return null; // 폴더 생성시 실패하면 경로를 null로 리턴하고 에러 아니게 처리를 한다. 사진 업로드가 안되었다고 bo에서 내용도 insert가 안되면 안되니까
+		}
+		
+		// 기존 파일 경로
+		///Users/geonhyo/koo/5_spring_project/workspace/temp/8d4958dc-d821-4e4b-a642-e6ebca471f68.png
+		String prevPath = FILE_PREV_UPLOAD_PATH + tempPath.replace("/temp/", "");
+		
+		
+		try {
+			// /Users/geonhyo/koo/5_spring_project/workspace/temp/8d4958dc-d821-4e4b-a642-e6ebca471f68.png
+			Path sourcePath = Paths.get(prevPath);
+			 // 파일 이름 추출
+			// 8d4958dc-d821-4e4b-a642-e6ebca471f68.png
+			 String fileName = sourcePath.getFileName().toString();
+			// 파일이 복사 된게 아니라 폴더가 복사가 되었네
+			// 복사할 대상 경로 (디렉토리 + 파일 이름)
+			// /Users/geonhyo/koo/5_spring_project/workspace/testboard/aaaa_1733992957817/8d4958dc-d821-4e4b-a642-e6ebca471f68.png
+		    Path targetPath = Paths.get(targetDir + fileName);
+			// 복사 temp 에 있던 걸 -> 작성되는 폴더로
+			Files.copy(sourcePath, targetPath,java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+			// temp파일에 있던건 삭제하기
+			Files.delete(sourcePath);
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		String filename = tempPath.split("/temp/")[1];
+		
+		
+		return "/images/" + directoryName + "/" + filename;
+	}
+	
+	
+	
+	
 	
 	
 }

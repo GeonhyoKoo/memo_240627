@@ -1,12 +1,12 @@
 package com.memo.common;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -50,24 +50,31 @@ public class ImageUpload {
 		}
 		
 		// 폴더명
-		String directoryName =  loginId + "_" + System.currentTimeMillis(); 
+		// String directoryName =  loginId + "_" + System.currentTimeMillis(); 
 		// 경로
-		String filePath = FILE_TEMP_UPLOAD_PATH + directoryName + "/"; 
+		// String filePath = FILE_TEMP_UPLOAD_PATH + directoryName + "/"; 
+		
+		
 		
 		
 		//폴더 생성
-		File directory = new File(filePath);
-		if( directory.mkdir() == false) {
-			result.put("code", 500);
-			result.put("error_message", "폴더 생성 실패");
-			return result; 
-		}
-	    
+//		File directory = new File(filePath);
+//		if( directory.mkdir() == false) {
+//			result.put("code", 500);
+//			result.put("error_message", "폴더 생성 실패");
+//			return result; 
+//		}
+		
+		String fileName = UUID.randomUUID() + extension;
+		
+		String filePath = FILE_TEMP_UPLOAD_PATH + fileName;
+		
 	    
 		// 파일 업로드
 		try {
 			byte[] bytes =  file.getBytes();
-			Path path = Paths.get(filePath + file.getOriginalFilename());
+			// Path path = Paths.get(filePath + file.getOriginalFilename());
+			Path path = Paths.get(filePath);
 			Files.write(path, bytes);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -77,7 +84,8 @@ public class ImageUpload {
 		}
 		
 		result.put("code", 200);
-		String url = "/temp/" + directoryName + "/" + file.getOriginalFilename();
+		//String url = "/temp/" + directoryName + "/" + file.getOriginalFilename();
+		String url = "/temp/" + fileName;
 		result.put("url", url);
 		return result;
 	}

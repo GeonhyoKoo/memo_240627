@@ -161,4 +161,24 @@ public class PostBO {
 	
 	
 	
+	/// summernote test
+	
+	public void addPostSummerNotd(String content, String subject, int id, String[] fileName, String loginId) {
+		
+		
+		if (fileName.length != 0) {
+			
+			for (int i = 0; i <fileName.length; i++) {
+				fileManeger.uploadSummerNoteFile(fileName[i], loginId);
+			}
+			
+		}
+		
+		int t=  3;
+		
+		
+	}
+	
+	
+	
 }

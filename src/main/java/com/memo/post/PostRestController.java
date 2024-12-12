@@ -131,8 +131,14 @@ public class PostRestController {
 		
 		String content = post.getContent();
 		String subject = post.getSubject();
-
+		Integer id = (Integer)session.getAttribute("userId");
+		String loginId = (String)session.getAttribute("userLoginId");	
+		if (id != null) {
+			id = (int)id;
+		}
+		post.setId(id);
 		
+		postBO.addPostSummerNotd(content , subject, id , imgName , loginId);
 		
 		
 		
